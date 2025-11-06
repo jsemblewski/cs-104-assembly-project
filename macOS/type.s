@@ -1,8 +1,8 @@
 // Monmouth University CS-104 project 1: type command in assembly (macOS)
 
-.text				// Please keep this
-.p2align 2			// Please keep this
-.globl	_main			// Please keep this
+.text				
+.p2align 2			
+.globl	_main			
 _main:				// Start of main function
 	// In the main function, we will set up the logic to open a file
 	// and give ourself space to read the letters in the file we open.
@@ -52,6 +52,9 @@ _main:				// Start of main function
 	// The number of arguments we have lives in register x0
 	// If we don't have exactly 2 arguments, go to the error function
 
+	cmp x0, #2
+	bne error
+
 	ldr	x0, [x1, #8]	// Puts the file name into register x0.
 
 	// The line above puts the file name into the first argument
@@ -59,6 +62,8 @@ _main:				// Start of main function
 	// Now, we should tell the open function to read the file
 	// How did we say to do that in class?
 	// The second argument is always put into the x1 register
+
+	mov x1, #0
 
 	mov	x16, #5		// Put the number 5 into register x16 (open)
 	svc	#0x80		// Call the open function with 2 arguments
@@ -69,10 +74,15 @@ _main:				// Start of main function
 	// Whenever a function gives you back a number, that number will
 	// live in the x0 register.
 
+	cmp x0,#0
+	blt error 
+
 	// Now, we should save the number the open function gave back to us
 	// Let's say it to the x20 register (for reason outside this class,
 	// it needs to be the x20 register; come talk to me during office
 	// hours if you are curious why).
+
+	mov x20, x0
 
 	// The last sub-problem to solve in the main function is to give
 	// ourselves some space to store the letters we read from the file.
@@ -86,19 +96,30 @@ _main:				// Start of main function
 	// number of bytes we need isn't divisible by 8, round up to the
 	// next multiple of 8.
 
+	sub sp, sp, #16 // sp = sp - 16
+
 loop:				// Start of the loop function
 	// The loop function is where all the real work happens.
 
 	// The first sub-problem is putting the value we saved to x20
 	// into the first argument for read.
 
+	mov x0, x20
+
 	// Next, we put the value of sp into the second argument
+
+	mov x1, sp
 
 	// Finally, we put 1 into x2. The x2 register is always the third
 	// argument for a function.
 
+	mov x2, #1
+
 	mov	x16, #3		// Put the number 3 into register x16 (read)
 	svc	#0x80		// Call the read function with 3 arguments
+
+	cmp x0, #1
+	bne done
 
 	// After we read in a letter, we need to put that letter on the
 	// screen.
@@ -106,17 +127,27 @@ loop:				// Start of the loop function
 	// in the second argument, and put 1 in the third argument
 	// A 1 in the first argument is shorthand for the screen
 
-	mov	x16, #4		// Put the number 4 into register x16 (write)
+	mov	x0, #1
+	mov x1, sp
+	mov x2, #1
+	
+	mov x16, #4		// Put the number 4 into register x16 (write)
 	svc	#0x80		// Call the write function with 3 arguments
 
 	// Now we need to check to see if the number we got back from the
 	// write function is 1. If it is not equal to 1, then we should go
 	// to the error function because it means something bad happened.
+	
+	
+	
+	cmp x0, #1
+	bne error
 
 	// Last sub-problem for the loop function: if we got all the way
 	// here, it means everything was success for this letter and we
 	// should jump back to the top of the loop function so we can do
 	// it all again with the next letter.
+ 	b loop
 
 error:				// Start of the error function
 	// You don't need to do anything with the error and done functions.
