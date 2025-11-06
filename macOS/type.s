@@ -74,7 +74,7 @@ _main:				// Start of main function
 	// Whenever a function gives you back a number, that number will
 	// live in the x0 register.
 
-	cmp x0,#0
+	cmp x0, #0
 	blt error 
 
 	// Now, we should save the number the open function gave back to us
@@ -127,9 +127,9 @@ loop:				// Start of the loop function
 	// in the second argument, and put 1 in the third argument
 	// A 1 in the first argument is shorthand for the screen
 
-	mov	x0, #1
-	mov x1, sp
-	mov x2, #1
+mov	x0, #1
+mov x1, sp
+mov x2, #1
 	
 	mov x16, #4		// Put the number 4 into register x16 (write)
 	svc	#0x80		// Call the write function with 3 arguments
