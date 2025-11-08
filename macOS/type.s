@@ -64,7 +64,6 @@ _main:				// Start of main function
 	// The second argument is always put into the x1 register
 
 	mov x1, #0
-
 	mov	x16, #5		// Put the number 5 into register x16 (open)
 	svc	#0x80		// Call the open function with 2 arguments
 
@@ -96,7 +95,7 @@ _main:				// Start of main function
 	// number of bytes we need isn't divisible by 8, round up to the
 	// next multiple of 8.
 
-	sub sp, sp, #16 // sp = sp - 16
+	sub sp, sp, #8 
 
 loop:				// Start of the loop function
 	// The loop function is where all the real work happens.
@@ -118,15 +117,14 @@ loop:				// Start of the loop function
 	mov	x16, #3		// Put the number 3 into register x16 (read)
 	svc	#0x80		// Call the read function with 3 arguments
 
-	cmp x0, #1
-	bne done
-
 	// After we read in a letter, we need to put that letter on the
 	// screen.
 	// To do that: put 1 in the first argument, put the value of sp
 	// in the second argument, and put 1 in the third argument
 	// A 1 in the first argument is shorthand for the screen
-
+	cmp x0, #0
+	beq done
+	blt error
 mov	x0, #1
 mov x1, sp
 mov x2, #1
